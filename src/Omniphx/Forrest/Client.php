@@ -636,6 +636,12 @@ abstract class Client
             $parameters['body'] = $this->formatBody($options);
         }
 
+        // JK$: Set to false so Salesforce 400/404 errors don't
+				// cause exceptions to be thrown
+				if (isset($options['exceptions'])) {
+            $parameters['exceptions'] = $options['exceptions'];
+        }
+
         $request = $this->client->createRequest($method, $pURL, $parameters);
 
         try {
@@ -748,13 +754,20 @@ abstract class Client
      */
     private function responseFormat($response, $format)
     {
-        if ($format == 'json') {
-            return $response->json();
-        } elseif ($format == 'xml') {
-            return $response->xml();
-        }
+      // JK$, successful call but no content returned
+      if ( $response->getStatusCode() == 204 )
+      {
+          return $response;
+      } elseif( $response->getStatusCode() == 404 ) {
+          return false;
+        
+      }elseif ($format == 'json') {
+          return $response->json();
+      } elseif ($format == 'xml') {
+          return $response->xml();
+      }
 
-        return $response;
+      return $response;
     }
 
     /**
