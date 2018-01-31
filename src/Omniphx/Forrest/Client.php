@@ -694,6 +694,8 @@ abstract class Client
             $body = json_encode($data);
         } elseif ($format == 'xml') {
             $body = urlencode($data);
+        } elseif ($format == 'csv') {
+            $body = $data;
         }
 
         return $body;
@@ -733,6 +735,9 @@ abstract class Client
         } elseif ($format == 'urlencoded') {
             $this->headers['Accept'] = 'application/x-www-form-urlencoded';
             $this->headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        } elseif ($format == 'csv') {
+            $this->headers['Accept'] = 'application/json';
+            $this->headers['Content-Type'] = 'text/csv';
         }
     }
 
@@ -760,12 +765,15 @@ abstract class Client
           return $response;
       } elseif( $response->getStatusCode() == 404 ) {
           return false;
-        
-      }elseif ($format == 'json') {
+
+      } elseif ($format == 'json') {
           return $response->json();
       } elseif ($format == 'xml') {
           return $response->xml();
       }
+      /*elseif ($format == 'csv') {
+          return $response->json();
+      }*/
 
       return $response;
     }
