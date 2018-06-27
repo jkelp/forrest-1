@@ -756,6 +756,20 @@ abstract class Client
 
         $this->setRequestFormat($options['format']);
         $this->setCompression($options);
+        $this->setSforceAutoAssign($options);
+    }
+    
+    /**
+     * JK$, for preventing Salesforce workflow rules from triggering
+     * See https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/headers_autoassign.htm
+     * Set to (string) "FALSE" to exclude workflow rules
+     * @param array $options [description]
+     */
+    private function setSforceAutoAssign(array $options)
+    {
+      if (!empty($options['Sforce-Auto-Assign'])) {
+          $this->headers['Sforce-Auto-Assign'] = $options['Sforce-Auto-Assign'];
+      }
     }
 
     /**
