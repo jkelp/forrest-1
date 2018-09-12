@@ -610,13 +610,20 @@ abstract class Client
 
     /**
      * Get token.
+     * JK modified 2018-09-12
      *
      * @return array
      */
     public function getTokenData()
     {
         if (empty($this->tokenData)) {
-            $this->tokenData = (array) $this->storage->getTokenData();
+            try {
+              return $this->tokenData = (array) $this->storage->getTokenData();
+            } catch (MissingTokenException $e) {
+              $this->authenticate();
+              return $this->getTokenData();
+            }
+
         }
 
         return $this->tokenData;
