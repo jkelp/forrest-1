@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\ResponseInterface;
 use Omniphx\Forrest\Exceptions\SalesforceException;
 use Omniphx\Forrest\Exceptions\TokenExpiredException;
+use Omniphx\Forrest\Exceptions\MissingTokenException;
 
 abstract class Client
 {
