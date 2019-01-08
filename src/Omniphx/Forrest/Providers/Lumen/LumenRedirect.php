@@ -1,11 +1,12 @@
 <?php
 
-namespace Omniphx\Forrest\Providers\Laravel;
+namespace Omniphx\Forrest\Providers\Lumen;
 
-use Illuminate\Routing\Redirector;
+use Illuminate\Http\Request as LumenRedirector;
+use Laravel\Lumen\Http\Redirector;
 use Omniphx\Forrest\Interfaces\RedirectInterface;
 
-class LaravelRedirect implements RedirectInterface
+class LumenRedirect implements RedirectInterface
 {
     protected $redirector;
 
