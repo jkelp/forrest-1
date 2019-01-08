@@ -14,6 +14,7 @@ use Omniphx\Forrest\Providers\Laravel\LaravelRedirect;
 use Omniphx\Forrest\Providers\Laravel\LaravelSession;
 
 use Omniphx\Forrest\Formatters\JSONFormatter;
+use Omniphx\Forrest\Formatters\CSVFormatter;
 use Omniphx\Forrest\Formatters\URLEncodedFormatter;
 use Omniphx\Forrest\Formatters\XMLFormatter;
 

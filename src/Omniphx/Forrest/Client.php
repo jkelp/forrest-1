@@ -193,6 +193,12 @@ abstract class Client
             $this->parameters['body'] = $this->formatter->setBody($this->options['body']);
         }
 
+        // JK$: Set to false so Salesforce 400/404 errors don't
+        // cause exceptions to be thrown
+        if (isset($options['exceptions'])) {
+            $parameters['exceptions'] = $options['exceptions'];
+        }
+
         try {
             $response = $this->httpClient->request($this->options['method'], $this->url, $this->parameters);
         } catch (RequestException $ex) {
