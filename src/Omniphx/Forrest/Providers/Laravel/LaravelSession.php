@@ -3,7 +3,8 @@
 namespace Omniphx\Forrest\Providers\Laravel;
 
 use Illuminate\Config\Repository as Config;
-use Illuminate\Contracts\Session\Session as Session;
+// use Illuminate\Contracts\Session\Session as Session;
+use Illuminate\Session\Store;
 use Omniphx\Forrest\Exceptions\MissingKeyException;
 
 class LaravelSession extends LaravelStorageProvider
@@ -12,10 +13,10 @@ class LaravelSession extends LaravelStorageProvider
 
     protected $session;
 
-    public function __construct(Config $config, Session $session)
+    public function __construct(Config $config, Store $store)
     {
         $this->path = $config->get('forrest.storage.path');
-        $this->session = $session;
+        $this->session = $store;
     }
 
     /**

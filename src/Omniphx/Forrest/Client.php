@@ -195,8 +195,8 @@ abstract class Client
 
         // JK$: Set to false so Salesforce 400/404 errors don't
         // cause exceptions to be thrown
-        if (isset($options['exceptions'])) {
-            $parameters['exceptions'] = $options['exceptions'];
+        if (isset($this->options['exceptions'])) {
+            $this->parameters['exceptions'] = $this->options['exceptions'];
         }
 
         try {
