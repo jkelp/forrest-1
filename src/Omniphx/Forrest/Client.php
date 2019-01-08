@@ -205,6 +205,13 @@ abstract class Client
             $this->assignExceptions($ex);
         }
 
+        // JK$, successful call but no content returned
+        if ( $response->getStatusCode() == 204 ) {
+          return $response;
+        } elseif( $response->getStatusCode() == 404 ) {
+          return false;
+        }
+
         $formattedResponse = $this->formatter->formatResponse($response);
 
         $this->event->fire('forrest.response', [$formattedResponse]);
