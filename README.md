@@ -1,42 +1,50 @@
-# Salesforce REST API Client for Laravel 5
-[![Laravel](https://img.shields.io/badge/Laravel-5.2-orange.svg?style=flat-square)](http://laravel.com)
+
+# Salesforce REST API Client for Laravel 5 <img align="right" src="https://raw.githubusercontent.com/omniphx/images/master/Forrest.png">
+
+[![Laravel](https://img.shields.io/badge/Laravel-5.5-orange.svg?style=flat-square)](http://laravel.com)
 [![Latest Stable Version](https://img.shields.io/packagist/v/omniphx/forrest.svg?style=flat-square)](https://packagist.org/packages/omniphx/forrest)
 [![Total Downloads](https://img.shields.io/packagist/dt/omniphx/forrest.svg?style=flat-square)](https://packagist.org/packages/omniphx/forrest)
 [![License](https://img.shields.io/packagist/l/omniphx/forrest.svg?style=flat-square)](https://packagist.org/packages/omniphx/forrest)
 [![Build Status](https://img.shields.io/travis/omniphx/forrest.svg?style=flat-square)](https://travis-ci.org/omniphx/forrest)
 
+
+
+
 Salesforce/Force.com REST API client for Laravel. While it acts as more of a wrapper of the API methods, it should provide you with all the flexibility you will need to interact with the REST service.
 
-While this package is built for Laravel, it has been decoupled so that it can be extended into any framework or vanilla PHP application. Currently the only support is for Larevel 4, 5 and Lumen.
+While this package is built for Laravel, it has been decoupled so that it can be extended into any framework or vanilla PHP application. Currently the only support is for Laravel 4, 5 and Lumen.
+
+Interested in Eloquent Salesforce Models? Check out [@roblesterjr04](https://github.com/roblesterjr04)'s [EloquentSalesForce](https://github.com/roblesterjr04/EloquentSalesForce) project that utilizes Forrest as it's API layer.
 
 ## Installation
 >If you are upgrading to Version 2.0, be sure to re-publish your config file.
 
 Forrest can be installed through composer. Open your `composer.json` file and add the following to the `require` key:
-
-    "omniphx/forrest": "2.*"
-
+```php
+"omniphx/forrest": "2.*"
+```
 Next run `composer update` from the command line to install the package.
 
-If you are using Laravel, add the service provider and alias to your `config/app.php` file:
+### Laravel Installation
 
-    Omniphx\Forrest\Providers\Laravel\ForrestServiceProvider::class
+Add the service provider and alias to your `config/app.php` file:
 
-    'Forrest' => Omniphx\Forrest\Providers\Laravel\Facades\Forrest::class
+```php
+Omniphx\Forrest\Providers\Laravel\ForrestServiceProvider::class
+'Forrest' => Omniphx\Forrest\Providers\Laravel\Facades\Forrest::class
+```
 
 >For Laravel 4, add `Omniphx\Forrest\Providers\Laravel4\ForrestServiceProvider` in `app/config/app.php`. Alias will remain the same.
 
 ### Lumen Installation 
 
-You should copy the config file from `src/config/config.php` and add it to a `forrest.php` configuration file under a config directory in the root of your application. 
-
-Then you'll utilize the Lumen service provider by registering it in the `bootstrap/app.php` file. 
-
-```
+```php
+class_alias('Omniphx\Forrest\Providers\Laravel\Facades\Forrest', 'Forrest');
 $app->register(Omniphx\Forrest\Providers\Lumen\ForrestServiceProvider::class);
 $app->configure('forrest');
+$app->withFacades();
 ```
-
+Then you'll utilize the Lumen service provider by registering it in the `bootstrap/app.php` file.
 
 ### Configuration
 You will need a configuration file to add your credentials. Publish a config file using the `artisan` command:
@@ -44,6 +52,8 @@ You will need a configuration file to add your credentials. Publish a config fil
 php artisan vendor:publish
 ```
 You can find the config file in: `config/forrest.php`
+
+>For Lumen, you should copy the config file from `src/config/config.php` and add it to a `forrest.php` configuration file under a config directory in the root of your application. 
 
 >For Laravel 4, run `php artisan config:publish omniphx/forrest`. It will be found in `app/config/omniphx/forrest/config.php`
 
@@ -188,7 +198,7 @@ Forrest::sobjects('Account/001i000000xxx', ['method' => 'delete']);
 Change the request/response format to XML with the `format` key or make it default in your config file.
 
 ```php
-Forrest::describe('Account',['format'=>'xml']);
+Forrest::sobjects('Account',['format'=>'xml']);
 ```
 
 ## API Requests
@@ -317,4 +327,4 @@ Event::listen('forrest.response', function($request, $response) {
 });
 ```
 
-For more information about Guzzle responses and event listeners, refer to their [documentation](http://guzzle.readthedocs.org/en/latest/http-messages.html#responses).
+For more information about Guzzle responses and event listeners, refer to their [documentation](http://guzzle.readthedocs.org).

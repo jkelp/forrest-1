@@ -1,19 +1,20 @@
 <?php
 
-namespace Omniphx\Forrest\Providers\Laravel;
+namespace Omniphx\Forrest\Providers\Lumen;
 
-use Illuminate\Contracts\Cache\Repository as Cache;
+use Illuminate\Cache\CacheManager as Cache;
 use Illuminate\Contracts\Config\Repository as Config;
 use Omniphx\Forrest\Exceptions\MissingKeyException;
+use Omniphx\Forrest\Providers\Laravel\LaravelStorageProvider as StorageProvider;
 
-class LaravelCache extends LaravelStorageProvider
+class LumenCache extends StorageProvider
 {
     protected $cache;
     protected $path;
     protected $minutes = 20;
     protected $storeForever;
 
-    public function __construct(Config $config, Cache $cache)
+    public function __construct(Cache $cache, Config $config)
     {
         $this->cache            = $cache;
         $this->path             = $config->get('forrest.storage.path');

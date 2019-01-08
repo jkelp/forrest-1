@@ -4,21 +4,29 @@ namespace Omniphx\Forrest\Providers;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
+use Omniphx\Forrest\Authentications\WebServer;
+use Omniphx\Forrest\Authentications\UserPassword;
 use Omniphx\Forrest\Providers\Laravel\LaravelCache;
 use Omniphx\Forrest\Providers\Laravel\LaravelEvent;
+use Omniphx\Forrest\Providers\Laravel\LaravelEncryptor;
 use Omniphx\Forrest\Providers\Laravel\LaravelInput;
 use Omniphx\Forrest\Providers\Laravel\LaravelRedirect;
 use Omniphx\Forrest\Providers\Laravel\LaravelSession;
 
+use Omniphx\Forrest\Formatters\JSONFormatter;
+use Omniphx\Forrest\Formatters\URLEncodedFormatter;
+use Omniphx\Forrest\Formatters\XMLFormatter;
+
+use Omniphx\Forrest\Repositories\InstanceURLRepository;
+use Omniphx\Forrest\Repositories\RefreshTokenRepository;
+use Omniphx\Forrest\Repositories\ResourceRepository;
+use Omniphx\Forrest\Repositories\StateRepository;
+use Omniphx\Forrest\Repositories\TokenRepository;
+use Omniphx\Forrest\Repositories\VersionRepository;
+
+
 abstract class BaseServiceProvider extends ServiceProvider
 {
-    /**
-     * Indicates if the application is laravel/lumen.
-     *
-     * @var bool
-     */
-    protected $is_laravel = true;
-
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -34,17 +42,31 @@ abstract class BaseServiceProvider extends ServiceProvider
     abstract protected function getConfigPath();
 
     /**
+     * Returns client implementation
+     *
+     * @return GuzzleHttp\Client
+     */
+    protected abstract function getClient();
+
+    /**
+     * Returns client implementation
+     *
+     * @return GuzzleHttp\Client
+     */
+    protected abstract function getRedirect();
+
+    /**
      * Bootstrap the application events.
      *
      * @return void
      */
     public function boot()
     {
-        if (method_exists($this, 'getConfigPath')) {
-            $this->publishes([
-                __DIR__.'/../../../config/config.php' => $this->getConfigPath(),
-            ]);
-        }
+        if (!method_exists($this, 'getConfigPath')) return;
+
+        $this->publishes([
+            __DIR__.'/../../../config/config.php' => $this->getConfigPath(),
+        ]);
     }
 
     /**
@@ -57,30 +79,79 @@ abstract class BaseServiceProvider extends ServiceProvider
         $this->app->singleton('forrest', function ($app) {
 
             // Config options
-            $settings = config('forrest');
-            $storageType = config('forrest.storage.type');
+            $settings           = config('forrest');
+            $storageType        = config('forrest.storage.type');
             $authenticationType = config('forrest.authentication');
 
-            // Determine showing HTTP errors
-            $http_errors = $this->is_laravel ? true : false;
-
             // Dependencies
-            $client = new Client(['http_errors' => $http_errors]);
-            $input = new LaravelInput();
-            $event = new LaravelEvent();
-            $redirect = new LaravelRedirect();
+            $httpClient    = $this->getClient();
+            $input     = new LaravelInput(app('request'));
+            $event     = new LaravelEvent(app('events'));
+            $encryptor = new LaravelEncryptor(app('encrypter'));
+            $redirect  = $this->getRedirect();
+            $storage   = $this->getStorage($storageType);
 
-            // Determine storage dependency
-            if ($storageType == 'cache') {
-                $storage = new LaravelCache(app('config'), app('cache'));
-            } else {
-                $storage = new LaravelSession(app('config'), app('session'));
+            $refreshTokenRepo = new RefreshTokenRepository($encryptor, $storage);
+            $tokenRepo        = new TokenRepository($encryptor, $storage);
+            $resourceRepo     = new ResourceRepository($storage);
+            $versionRepo      = new VersionRepository($storage);
+            $instanceURLRepo  = new InstanceURLRepository($tokenRepo, $settings);
+            $stateRepo        = new StateRepository($storage);
+
+            $formatter = new JSONFormatter($tokenRepo, $settings);
+
+            switch ($authenticationType) {
+                case 'WebServer':
+                    $forrest = new WebServer(
+                        $httpClient,
+                        $encryptor,
+                        $event,
+                        $input,
+                        $redirect,
+                        $instanceURLRepo,
+                        $refreshTokenRepo,
+                        $resourceRepo,
+                        $stateRepo,
+                        $tokenRepo,
+                        $versionRepo,
+                        $formatter,
+                        $settings);
+                    break;
+                case 'UserPassword':
+                    $forrest = new UserPassword(
+                        $httpClient,
+                        $encryptor,
+                        $event,
+                        $input,
+                        $redirect,
+                        $instanceURLRepo,
+                        $refreshTokenRepo,
+                        $resourceRepo,
+                        $stateRepo,
+                        $tokenRepo,
+                        $versionRepo,
+                        $formatter,
+                        $settings);
+                    break;
+                default:
+                    $forrest = new WebServer(
+                        $httpClient,
+                        $encryptor,
+                        $event,
+                        $input,
+                        $redirect,
+                        $instanceURLRepo,
+                        $refreshTokenRepo,
+                        $resourceRepo,
+                        $stateRepo,
+                        $tokenRepo,
+                        $versionRepo,
+                        $formatter,
+                        $settings);
+                    break;
             }
 
-            // Class namespace
-            $forrest = "\\Omniphx\\Forrest\\Authentications\\$authenticationType";
-
-            return new $forrest($client, $event, $input, $redirect, $storage, $settings);
+            return $forrest;
         });
     }
 }
